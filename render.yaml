@@ -1,0 +1,24 @@
+name: gymfit
+type: web
+env: node
+plan: free  # Change to 'starter' or 'standard' for production
+
+buildCommand: npm install --production
+startCommand: node server.js
+
+envVars:
+  - key: NODE_ENV
+    value: production
+  - key: PORT
+    value: 5000
+
+  # Database - Set this in Render Dashboard after creating MongoDB Atlas
+  - key: MONGODB_URI
+    fromDatabase:
+      name: gymfit-mongodb
+      property: connectionString
+
+  # JWT Secret - Generate a strong secret in Render Dashboard
+  - key: JWT_SECRET
+    generateValue: true
+    sync: false

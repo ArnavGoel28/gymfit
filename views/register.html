@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register - Gym Management Setup</title>
+    <meta name="description" content="Register a new account for our gym.">
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <nav>
+        <div style="display:flex; align-items:center;">
+            <img src="/images/lnmiit.webp" alt="LNMIIT Logo" style="height:40px; margin-right:1rem;">
+            <h1>GymFit</h1>
+        </div>
+        <ul>
+            <li><a href="/views/login.html">Login</a></li>
+            <li><a href="/views/register.html" class="auth-btn">Register</a></li>
+        </ul>
+    </nav>
+    <div class="container">
+        <div class="auth-box">
+            <h2>Create Account</h2>
+            <form id="registerForm">
+                <div class="form-group">
+                    <label for="name">Full Name</label>
+                    <input type="text" id="name" required placeholder="John Doe">
+                </div>
+                <div class="form-group">
+                    <label for="email">Email Address</label>
+                    <input type="email" id="email" required placeholder="john@example.com">
+                </div>
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" required placeholder="Create a strong password">
+                </div>
+                <div class="form-group">
+                    <label for="role">Role</label>
+                    <select id="role">
+                        <option value="user">Gym Member</option>
+                        <option value="admin">Administrator</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn-submit">Sign Up</button>
+                <a href="/views/login.html" class="switch-link">Already have an account? <span>Sign In</span></a>
+            </form>
+        </div>
+    </div>
+    <script src="/js/main.js"></script>
+    <script>
+        document.getElementById('registerForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const name = document.getElementById('name').value;
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const role = document.getElementById('role').value;
+            
+            try {
+                const res = await fetch('/api/auth/register', {
+                    method: 'POST',
+                    headers: getAuthHeaders(),
+                    body: JSON.stringify({ name, email, password, role })
+                });
+                const data = await res.json();
+                
+                if (res.ok) {
+                    localStorage.setItem('token', data.token);
+                    localStorage.setItem('user', JSON.stringify(data.user));
+                    showToast('Registration successful!');
+                    setTimeout(() => {
+                         window.location.href = data.user.role === 'admin' ? '/views/admin.html' : '/views/dashboard.html';
+                    }, 1000);
+                } else {
+                    showToast(data.msg || 'Registration failed', true);
+                }
+            } catch (err) {
+                showToast('Server error', true);
+            }
+        });
+    </script>
+</body>
+</html>

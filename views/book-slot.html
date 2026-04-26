@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Book Slot - GymFit</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <nav>
+        <div style="display:flex; align-items:center;">
+            <img src="/images/lnmiit.webp" alt="LNMIIT Logo" style="height:40px; margin-right:1rem;">
+            <h1>GymFit</h1>
+        </div>
+        <ul id="nav-right">
+            <!-- Populated by setupNav() -->
+        </ul>
+    </nav>
+    <div class="container" style="align-items: flex-start;">
+        <div class="dashboard-wrapper">
+            <div class="card">
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <h3>Book Gym Session</h3>
+                    <a href="/views/dashboard.html" style="color:var(--text-muted); text-decoration:none;">&larr; Back to Dashboard</a>
+                </div>
+                
+                <div style="margin-top:2rem;">
+                    <label style="color:var(--text-muted); font-size:0.9rem; margin-bottom:0.5rem; display:block;">Select Date</label>
+                    <input type="date" id="bookDate" class="form-group" style="padding:0.75rem; background:var(--card-bg); border:1px solid var(--border-color); color:var(--text-main); border-radius:6px; width:100%; max-width:250px;">
+                </div>
+                
+                <div style="margin-top:2rem;">
+                    <label style="color:var(--text-muted); font-size:0.9rem; margin-bottom:0.5rem; display:block;">Available Slots</label>
+                    <div class="slot-grid">
+                        <button class="slot-btn" data-slot="6 AM - 8 AM" onclick="selectSlot(this, '6 AM - 8 AM')">6 AM - 8 AM</button>
+                        <button class="slot-btn" data-slot="8 AM - 10 AM" onclick="selectSlot(this, '8 AM - 10 AM')">8 AM - 10 AM</button>
+                        <button class="slot-btn" data-slot="10 AM - 12 PM" onclick="selectSlot(this, '10 AM - 12 PM')">10 AM - 12 PM</button>
+                        <button class="slot-btn" data-slot="5 PM - 7 PM" onclick="selectSlot(this, '5 PM - 7 PM')">5 PM - 7 PM</button>
+                        <button class="slot-btn" data-slot="7 PM - 9 PM" onclick="selectSlot(this, '7 PM - 9 PM')">7 PM - 9 PM</button>
+                    </div>
+                </div>
+                
+                <button class="btn-action" style="margin-top:2rem; width:100%;" id="confirmBookBtn" disabled>Confirm Booking</button>
+            </div>
+        </div>
+    </div>
+    
+    <script src="/js/main.js"></script>
+    <script>
+        checkAuth();
+        setupNav();
+        const user = getAuthUser();
+        
+        // Set minimum date to today
+        const dateInput = document.getElementById('bookDate');
+        const today = new Date().toISOString().split('T')[0];
+        dateInput.setAttribute('min', today);
+        dateInput.value = today;
+        
+        let selectedSlotTime = null;
+        
+        async function fetchAvailability(date) {
+            document.querySelectorAll('.slot-btn').forEach(btn => {
+                btn.disabled = false;
+                btn.classList.remove('selected');
+                btn.textContent = btn.getAttribute('data-slot'); // Reset text
+            });
+            selectedSlotTime = null;
+            document.getElementById('confirmBookBtn').disabled = true;
+            
+            try {
+                const res = await fetch(`/api/booking/availability/${date}`);
+                const data = await res.json();
+                data.forEach(slot => {
+                     if(slot.count >= 20) { // 20 is max capacity per slot
+                        document.querySelectorAll('.slot-btn').forEach(btn => {
+                            if(btn.getAttribute('data-slot') === slot._id) {
+                                btn.disabled = true;
+                                btn.textContent = `${slot._id} (Booked)`;
+                            }
+                        });
+                    }
+                });
+            } catch(e) {
+                console.error(e);
+            }
+        }
+        
+        dateInput.addEventListener('change', () => fetchAvailability(dateInput.value));
+        // initial fetch
+        fetchAvailability(today);
+        
+        function selectSlot(element, slotString) {
+            document.querySelectorAll('.slot-btn').forEach(btn => btn.classList.remove('selected'));
+            element.classList.add('selected');
+            selectedSlotTime = slotString;
+            document.getElementById('confirmBookBtn').disabled = false;
+        }
+        
+        document.getElementById('confirmBookBtn').addEventListener('click', async () => {
+            if(!selectedSlotTime) return;
+            
+            const date = document.getElementById('bookDate').value;
+            try {
+                const res = await fetch('/api/booking/create', {
+                    method: 'POST',
+                    headers: getAuthHeaders(),
+                    body: JSON.stringify({ userId: user.id, slotTime: selectedSlotTime, date })
+                });
+                
+                const data = await res.json();
+                if(res.ok) {
+                    showToast('Slot booked successfully!');
+                    setTimeout(() => window.location.href = '/views/dashboard.html', 1500);
+                } else {
+                    showToast(data.msg, true);
+                    // re-fetch availability in case it's booked
+                    fetchAvailability(dateInput.value);
+                }
+            } catch(e) {
+                showToast('Server error', true);
+            }
+        });
+    </script>
+</body>
+</html>
