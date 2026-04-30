@@ -8,15 +8,15 @@ import { auth, admin } from './middleware/auth.js';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-import authRoutes from './routes/auth.js';
-import attendanceRoutes from './routes/attendance.js';
-import bookingRoutes from './routes/booking.js';
-import adminRoutes from './routes/admin.js';
-
 // Import models to register them
 import './models/User.js';
 import './models/Attendance.js';
 import './models/Booking.js';
+
+import authRoutes from './routes/auth.js';
+import attendanceRoutes from './routes/attendance.js';
+import bookingRoutes from './routes/booking.js';
+import adminRoutes from './routes/admin.js';
 
 const app = express();
 

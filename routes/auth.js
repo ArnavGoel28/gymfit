@@ -24,10 +24,8 @@ router.post('/register', async (req, res) => {
         await user.save();
         
         const payload = { user: { id: user.id, role: user.role } };
-        jwt.sign(payload, JWT_SECRET, { expiresIn: '1h' }, (err, token) => {
-            if (err) throw err;
-            res.json({ token, user: { id: user.id, name: user.name, role: user.role } });
-        });
+        const token = jwt.sign(payload, JWT_SECRET, { expiresIn: '1h' });
+        res.json({ token, user: { id: user.id, name: user.name, role: user.role } });
     } catch (err) {
         console.error(err.message);
         res.status(500).send('Server Error');
@@ -50,10 +48,8 @@ router.post('/login', async (req, res) => {
         }
         
         const payload = { user: { id: user.id, role: user.role } };
-        jwt.sign(payload, JWT_SECRET, { expiresIn: '10h' }, (err, token) => {
-            if (err) throw err;
-            res.json({ token, user: { id: user.id, name: user.name, role: user.role } });
-        });
+        const token = jwt.sign(payload, JWT_SECRET, { expiresIn: '10h' });
+        res.json({ token, user: { id: user.id, name: user.name, role: user.role } });
     } catch (err) {
         console.error(err.message);
         res.status(500).send('Server Error');
