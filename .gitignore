@@ -22,3 +22,9 @@ data/
 # Build outputs (if any)
 dist/
 build/
+
+# Test files
+testuser.json
+
+# Vercel
+.vercel/
