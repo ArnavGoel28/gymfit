@@ -8,6 +8,7 @@ const authRoutes = require('./routes/auth');
 const attendanceRoutes = require('./routes/attendance');
 const bookingRoutes = require('./routes/booking');
 const adminRoutes = require('./routes/admin');
+const { auth, admin } = require('./middleware/auth');
 
 const app = express();
 
@@ -27,9 +28,10 @@ app.get('/', (req, res) => {
 
 // Setup Routes
 app.use('/api/auth', authRoutes);
-app.use('/api/attendance', attendanceRoutes);
-app.use('/api/booking', bookingRoutes);
-app.use('/api/admin', adminRoutes);
+// Protected routes
+app.use('/api/attendance', auth, attendanceRoutes);
+app.use('/api/booking', auth, bookingRoutes);
+app.use('/api/admin', auth, admin, adminRoutes);
 
 // Database Connection
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/gymBD';
