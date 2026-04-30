@@ -1,6 +1,7 @@
 {
   "name": "gym-project",
   "version": "1.0.0",
+  "type": "module",
   "description": "Gym Management System",
   "main": "server.js",
   "scripts": {
