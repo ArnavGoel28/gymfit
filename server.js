@@ -13,6 +13,11 @@ import attendanceRoutes from './routes/attendance.js';
 import bookingRoutes from './routes/booking.js';
 import adminRoutes from './routes/admin.js';
 
+// Import models to register them
+import './models/User.js';
+import './models/Attendance.js';
+import './models/Booking.js';
+
 const app = express();
 
 // Middleware
