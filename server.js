@@ -49,5 +49,12 @@ mongoose.connect(MONGODB_URI, {
     console.error('MongoDB connection error:', err);
 });
 
+// Start server if run directly
+if (process.argv[1] === __filename) {
+    app.listen(PORT, () => {
+        console.log(`Server is running on port ${PORT}`);
+    });
+}
+
 // Export for Vercel
 export default app;
