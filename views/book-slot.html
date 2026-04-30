@@ -69,7 +69,9 @@
             document.getElementById('confirmBookBtn').disabled = true;
             
             try {
-                const res = await fetch(`/api/booking/availability/${date}`);
+                const res = await fetch(`/api/booking/availability/${date}`, {
+                    headers: getAuthHeaders()
+                });
                 const data = await res.json();
                 data.forEach(slot => {
                      if(slot.count >= 20) { // 20 is max capacity per slot

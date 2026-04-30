@@ -139,7 +139,9 @@
         
         async function loadAttendance(dateStr) {
             try {
-                const res = await fetch(`/api/admin/attendance?date=${dateStr}`);
+                const res = await fetch(`/api/admin/attendance?date=${dateStr}`, {
+                    headers: getAuthHeaders()
+                });
                 const att = await res.json();
                 const tbody = document.getElementById('adminAttendanceTable');
                 tbody.innerHTML = '';
@@ -165,7 +167,10 @@
         async function adminCancel(id) {
             if(!confirm('Cancel this booking as Admin?')) return;
             try {
-                const res = await fetch(`/api/admin/booking/${id}`, { method: 'DELETE' });
+                const res = await fetch(`/api/admin/booking/${id}`, { 
+                    method: 'DELETE',
+                    headers: getAuthHeaders()
+                });
                 if(res.ok) {
                     showToast('Booking deleted');
                     loadBookings(document.getElementById('filterDate').value);

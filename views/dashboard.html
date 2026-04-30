@@ -73,7 +73,9 @@
 
         async function loadBookings() {
             try {
-                const res = await fetch(`/api/booking/mybookings/${user.id}`);
+                const res = await fetch(`/api/booking/mybookings/${user.id}`, {
+                    headers: getAuthHeaders()
+                });
                 const bookings = await res.json();
                 const tbody = document.getElementById('bookingsTableBody');
                 tbody.innerHTML = '';
