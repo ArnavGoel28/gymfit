@@ -40,15 +40,3 @@ const admin = (req, res, next) => {
 };
 
 export { auth, admin };
-
-
-// Authorization middleware for admin roles
-const admin = (req, res, next) => {
-  if (req.user && req.user.role === 'admin') {
-    next();
-  } else {
-    return res.status(403).json({ msg: 'Admin access denied' });
-  }
-};
-
-module.exports = { auth, admin };
