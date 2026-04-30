@@ -1,9 +1,8 @@
-const express = require('express');
+import express from 'express';
+import mongoose from 'mongoose';
+import auth from '../middleware/auth.js';
+
 const router = express.Router();
-const Attendance = require('../models/Attendance');
-const Booking = require('../models/Booking');
-const User = require('../models/User');
-const auth = require('../middleware/auth');
 
 // Admin authorization middleware
 const adminOnly = (req, res, next) => {
@@ -17,6 +16,7 @@ const adminOnly = (req, res, next) => {
 router.get('/attendance', auth, adminOnly, async (req, res) => {
     try {
         const date = req.query.date || new Date().toISOString().split('T')[0];
+        const Attendance = mongoose.model('Attendance');
         const attendance = await Attendance.find({ date }).populate('userId', 'name email');
         res.json(attendance);
     } catch (err) {
@@ -28,6 +28,7 @@ router.get('/attendance', auth, adminOnly, async (req, res) => {
 router.get('/bookings', auth, adminOnly, async (req, res) => {
     try {
         const date = req.query.date || new Date().toISOString().split('T')[0];
+        const Booking = mongoose.model('Booking');
         const bookings = await Booking.find({ date }).populate('userId', 'name email').sort({ slotTime: 1 });
         res.json(bookings);
     } catch (err) {
@@ -38,6 +39,7 @@ router.get('/bookings', auth, adminOnly, async (req, res) => {
 // Cancel any user's booking by admin
 router.delete('/booking/:id', auth, adminOnly, async (req, res) => {
     try {
+        const Booking = mongoose.model('Booking');
         await Booking.findByIdAndDelete(req.params.id);
         res.json({ msg: 'Booking deleted by Admin' });
     } catch (err) {
@@ -51,12 +53,15 @@ router.get('/analytics', auth, adminOnly, async (req, res) => {
         const todayStr = new Date().toISOString().split('T')[0];
         
         // Total daily attendance today
+        const Attendance = mongoose.model('Attendance');
         const totalAttendanceToday = await Attendance.countDocuments({ date: todayStr });
         
         // Members count
+        const User = mongoose.model('User');
         const totalMembers = await User.countDocuments({ role: 'user' });
         
         // Most busy slot today
+        const Booking = mongoose.model('Booking');
         const slotAgg = await Booking.aggregate([
             { $match: { date: todayStr, status: 'booked' } },
             { $group: { _id: "$slotTime", count: { $sum: 1 } } },
@@ -76,4 +81,4 @@ router.get('/analytics', auth, adminOnly, async (req, res) => {
     }
 });
 
-module.exports = router;
+export default router;

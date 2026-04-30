@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
 const userSchema = new mongoose.Schema({
     name: { type: String, required: true },
@@ -7,7 +7,5 @@ const userSchema = new mongoose.Schema({
     role: { type: String, enum: ['user', 'admin'], default: 'user' }
 });
 
-// Index for fast email lookup during login
-userSchema.index({ email: 1 });
+export default mongoose.model('User', userSchema);
 
-module.exports = mongoose.model('User', userSchema);

@@ -1,5 +1,5 @@
-const jwt = require('jsonwebtoken');
-const User = require('../models/User');
+import jwt from 'jsonwebtoken'; 
+import mongoose from 'mongoose';
 
 // Authentication middleware
 const auth = async (req, res, next) => {
@@ -16,6 +16,7 @@ const auth = async (req, res, next) => {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     
     // Get user from token
+    const User = mongoose.model('User');
     req.user = await User.findById(decoded.user.id).select('-password');
     
     if (!req.user) {
@@ -28,6 +29,18 @@ const auth = async (req, res, next) => {
     res.status(401).json({ msg: 'Token is not valid' });
   }
 };
+
+// Authorization middleware for admin roles
+const admin = (req, res, next) => {
+  if (req.user && req.user.role === 'admin') {
+    next();
+  } else {
+    return res.status(403).json({ msg: 'Admin access denied' });
+  }
+};
+
+export { auth, admin };
+
 
 // Authorization middleware for admin roles
 const admin = (req, res, next) => {

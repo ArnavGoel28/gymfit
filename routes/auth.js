@@ -1,8 +1,9 @@
-const express = require('express');
+import express from 'express';
+import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
+import mongoose from 'mongoose';
+
 const router = express.Router();
-const bcrypt = require('bcryptjs');
-const jwt = require('jsonwebtoken');
-const User = require('../models/User');
 
 const JWT_SECRET = process.env.JWT_SECRET || 'gymfit_college_project_secret_key';
 
@@ -10,6 +11,7 @@ router.post('/register', async (req, res) => {
     try {
         const { name, email, password, role } = req.body;
         
+        const User = mongoose.model('User');
         let user = await User.findOne({ email });
         if (user) {
             return res.status(400).json({ msg: 'User already exists' });
@@ -36,6 +38,7 @@ router.post('/login', async (req, res) => {
     try {
         const { email, password } = req.body;
         
+        const User = mongoose.model('User');
         let user = await User.findOne({ email });
         if (!user) {
             return res.status(400).json({ msg: 'Invalid Credentials' });
@@ -57,4 +60,5 @@ router.post('/login', async (req, res) => {
     }
 });
 
-module.exports = router;
+export default router;
+

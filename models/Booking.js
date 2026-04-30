@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
 const bookingSchema = new mongoose.Schema({
     userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
@@ -13,4 +13,4 @@ bookingSchema.index({ userId: 1, date: 1 });
 // Unique compound index to prevent double booking (user cannot have 2 active bookings for same slot on same date)
 bookingSchema.index({ userId: 1, date: 1, slotTime: 1, status: 1 }, { unique: true, partialFilterExpression: { status: 'booked' } });
 
-module.exports = mongoose.model('Booking', bookingSchema);
+export default mongoose.model('Booking', bookingSchema);

@@ -1,14 +1,17 @@
-const express = require('express');
-const mongoose = require('mongoose');
-const cors = require('cors');
-const path = require('path');
-require('dotenv').config();
+import express from 'express';
+import mongoose from 'mongoose';
+import cors from 'cors';
+import path, { dirname } from 'path';
+import { fileURLToPath } from 'url';
+import { auth, admin } from './middleware/auth.js';
 
-const authRoutes = require('./routes/auth');
-const attendanceRoutes = require('./routes/attendance');
-const bookingRoutes = require('./routes/booking');
-const adminRoutes = require('./routes/admin');
-const { auth, admin } = require('./middleware/auth');
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
+import authRoutes from './routes/auth.js';
+import attendanceRoutes from './routes/attendance.js';
+import bookingRoutes from './routes/booking.js';
+import adminRoutes from './routes/admin.js';
 
 const app = express();
 

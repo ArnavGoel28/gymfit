@@ -1,7 +1,8 @@
-const express = require('express');
+import express from 'express';
+import mongoose from 'mongoose';
+import auth from '../middleware/auth.js';
+
 const router = express.Router();
-const Booking = require('../models/Booking');
-const auth = require('../middleware/auth');
 
 // Book a slot - requires auth
 router.post('/create', auth, async (req, res) => {
@@ -9,6 +10,7 @@ router.post('/create', auth, async (req, res) => {
         const { userId, slotTime, date } = req.body;
 
         // Check capacity limit (max 20 members per slot)
+        const Booking = mongoose.model('Booking');
         const count = await Booking.countDocuments({ slotTime, date, status: 'booked' });
         if (count >= 20) {
             return res.status(400).json({ msg: 'Slot Full. Max capacity reached.' });
@@ -30,9 +32,10 @@ router.post('/create', auth, async (req, res) => {
     }
 });
 
-// Get user bookings - requires auth
+// Get user bookings
 router.get('/mybookings/:userId', auth, async (req, res) => {
     try {
+        const Booking = mongoose.model('Booking');
         const bookings = await Booking.find({ userId: req.params.userId }).sort({ date: -1 });
         res.json(bookings);
     } catch (err) {
@@ -41,9 +44,10 @@ router.get('/mybookings/:userId', auth, async (req, res) => {
     }
 });
 
-// Cancel a booking - requires auth
+// Cancel a booking
 router.put('/cancel/:id', auth, async (req, res) => {
     try {
+        const Booking = mongoose.model('Booking');
         let booking = await Booking.findById(req.params.id);
         if (!booking) return res.status(404).json({ msg: 'Booking not found' });
 
@@ -56,8 +60,9 @@ router.put('/cancel/:id', auth, async (req, res) => {
 });
 
 // Get daily slot availability
-router.get('/availability/:date', async (req, res) => {
+router.get('/availability/:date', auth, async (req, res) => {
     try {
+        const Booking = mongoose.model('Booking');
         const date = req.params.date;
         const slots = await Booking.aggregate([
             { $match: { date: date, status: 'booked' } },
@@ -69,4 +74,5 @@ router.get('/availability/:date', async (req, res) => {
     }
 });
 
-module.exports = router;
+export default router;
+

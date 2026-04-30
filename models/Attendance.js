@@ -1,12 +1,9 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
 const attendanceSchema = new mongoose.Schema({
     userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-    date: { type: String, required: true, unique: true }, // Format: YYYY-MM-DD, unique per user enforced at DB level
-    checkInTime: { type: Date, default: Date.now }
-});
+    date: { type: String, required: true }
+}, { timestamps: true });
 
-// Index for fast lookup by date and user
-attendanceSchema.index({ date: 1, userId: 1 });
+export default mongoose.model('Attendance', attendanceSchema);
 
-module.exports = mongoose.model('Attendance', attendanceSchema);
