@@ -150,7 +150,7 @@
                     return;
                 }
                 att.forEach(item => {
-                    const time = new Date(item.checkInTime).toLocaleTimeString();
+                    const time = new Date(item.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
                     const tr = document.createElement('tr');
                     tr.innerHTML = `
                         <td>${item.userId ? item.userId.name : 'Unknown'}</td>
